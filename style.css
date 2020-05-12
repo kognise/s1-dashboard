@@ -1,0 +1,32 @@
+.ant-layout {
+  height: 100vh;
+}
+
+.ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ant-layout-sider {
+  z-index: 99999;
+  position: fixed;
+  top: 64px;
+  bottom: 0;
+}
+
+.ant-layout-content {
+  margin-left: 260px;
+  padding: 60px 100px;
+}
+
+.ant-layout-sider-zero-width-trigger {
+  top: 12px;
+}
+
+@media (max-width: 992px) {
+  .ant-layout-content {
+    padding: 60px 50px;
+    margin-left: 0;
+  }
+}
