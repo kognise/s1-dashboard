@@ -1,4 +1,5 @@
 import S1 from 's1db'
+import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import {
   Layout,
@@ -629,8 +630,13 @@ export default () => {
           {connections.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 16px' }}>
               <Typography.Title level={4}>Get Started</Typography.Title>
-              <Typography.Text>
+              <Typography.Text style={{ display: 'block', marginBottom: 10 }}>
                 Create a connection in the main area to get started.
+              </Typography.Text>
+              <Typography.Text>
+                <a href='https://s1.kognise.dev/token' target='_blank'>
+                  New token
+                </a>
               </Typography.Text>
             </div>
           )}
@@ -691,6 +697,10 @@ export default () => {
 
   return (
     <Layout>
+      <Head>
+        <title>S1 Dashboard</title>
+      </Head>
+
       <Layout.Header
         style={{ display: 'flex', alignItems: 'center', paddingLeft: 24 }}
       >
