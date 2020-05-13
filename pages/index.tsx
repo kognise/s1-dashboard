@@ -145,7 +145,9 @@ export default () => {
               try {
                 if (form.save) setConnections([...connections, connection])
                 if (existing) {
+                  console.log('updating because existing')
                   const index = connections.indexOf(existing)
+                  setExisting(connection)
                   setConnections([
                     ...connections.slice(0, index),
                     connection,
@@ -174,6 +176,11 @@ export default () => {
                   error,
                   connection
                 })
+              }
+
+              if (existing !== connection) {
+                connectionForm.setFieldsValue({ save: false })
+                setExisting(connection)
               }
             }}
           >
