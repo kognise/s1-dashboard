@@ -25,6 +25,22 @@ const assertUnreachable = (x: never): never => {
   throw new Error("This shouldn't have happened")
 }
 
+const tryFormat = (string: string) => {
+  try {
+    return JSON.stringify(JSON.parse(string), null, 2)
+  } catch {
+    return string
+  }
+}
+
+const tryRemoveFormatting = (string: string) => {
+  try {
+    return JSON.stringify(JSON.parse(string))
+  } catch {
+    return string
+  }
+}
+
 const formLayout = {
   labelCol: { span: 4 },
   wrapperCol: { span: 20 }
@@ -273,7 +289,7 @@ export default () => {
                     keyState: {
                       state: 'ready',
                       key,
-                      value,
+                      value: tryFormat(value),
                       valueChanged: false
                     },
                     keys: await connectionState.db.getKeys()
@@ -352,6 +368,87 @@ export default () => {
               </Typography.Text>
 
               <Input.TextArea
+                id='code-editor'
+                onKeyDown={(event) => {
+                  const editor = document.getElementById(
+                    'code-editor'
+                  ) as HTMLTextAreaElement
+                  const selectionStart = editor.selectionStart
+                  const selectionEnd = editor.selectionEnd
+
+                  if (event.keyCode === 9 && !event.shiftKey) {
+                    event.preventDefault()
+
+                    const newValue = [
+                      editor.value.slice(0, editor.selectionStart),
+                      '  ',
+                      editor.value.slice(editor.selectionEnd)
+                    ].join('')
+
+                    if (
+                      connectionState.keyState.state === 'ready' ||
+                      connectionState.keyState.state === 'saving'
+                    ) {
+                      editor.value = newValue
+                      editor.selectionStart =
+                        selectionStart + 2 - (selectionEnd - selectionStart)
+                      editor.selectionEnd =
+                        selectionEnd + 2 - (selectionEnd - selectionStart)
+                      setConnectionState({
+                        ...connectionState,
+                        keyState: {
+                          ...connectionState.keyState,
+                          value: newValue,
+                          valueChanged: true
+                        }
+                      })
+                    }
+                  } else if (event.keyCode === 9 && event.shiftKey) {
+                    event.preventDefault()
+
+                    const beforeStart = editor.value
+                      .slice(0, selectionStart)
+                      .split('')
+                      .reverse()
+                      .join('')
+
+                    const indexOfTab = beforeStart.indexOf('  ')
+                    const indexOfNewline = beforeStart.indexOf('\n')
+
+                    const newValue = [
+                      beforeStart
+                        .slice(indexOfTab + 2)
+                        .split('')
+                        .reverse()
+                        .join(''),
+                      beforeStart
+                        .slice(0, indexOfTab)
+                        .split('')
+                        .reverse()
+                        .join(''),
+                      editor.value.slice(selectionEnd)
+                    ].join('')
+
+                    if (
+                      indexOfTab !== -1 &&
+                      indexOfTab < indexOfNewline &&
+                      (connectionState.keyState.state === 'ready' ||
+                        connectionState.keyState.state === 'saving')
+                    ) {
+                      editor.value = newValue
+                      editor.selectionStart = selectionStart - 2
+                      editor.selectionEnd = selectionEnd - 2
+                      setConnectionState({
+                        ...connectionState,
+                        keyState: {
+                          ...connectionState.keyState,
+                          value: newValue,
+                          valueChanged: true
+                        }
+                      })
+                    }
+                  }
+                }}
                 rows={10}
                 value={connectionState.keyState.value}
                 style={{
@@ -392,7 +489,7 @@ export default () => {
 
                       await connectionState.db.setRaw(
                         connectionState.keyState.key,
-                        connectionState.keyState.value
+                        tryRemoveFormatting(connectionState.keyState.value)
                       )
 
                       setConnectionState((connectionState) =>
@@ -607,7 +704,7 @@ export default () => {
                           keyState: {
                             state: 'ready',
                             key,
-                            value,
+                            value: tryFormat(value),
                             valueChanged: false
                           }
                         }
