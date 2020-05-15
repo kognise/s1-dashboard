@@ -1,0 +1,19 @@
+name: "Deploy"
+on: [push]
+
+jobs:
+  deploy:
+    name: "Deploy to Neocities"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12"
+      - run: yarn
+      - run: yarn build
+      - run: yarn static
+      - uses: kognise/neocities-deploy-action@master
+        with:
+          neocities_token: ${{ secrets.NEOCITIES_TOKEN }}
+          directory: "out/"
