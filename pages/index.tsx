@@ -829,6 +829,7 @@ export default () => {
           breakpoint='lg'
           collapsedWidth='0'
           width='260'
+          style={{ overflow: 'auto' }}
         >
           {sider}
         </Layout.Sider>
